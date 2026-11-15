@@ -1,0 +1,6 @@
+{
+    // CMake Tools configures and builds through CMakePresets.json; IntelliSense is set up in
+    // c_cpp_properties.json.
+    "cmake.useCMakePresets": "always",
+    "cmake.configureOnOpen": true
+}

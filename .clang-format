@@ -1,0 +1,17 @@
+# Code style: Google, 4-space indent, 100 columns; every block gets braces (cpp-best-practices,
+# 03-Style). Short blocks may stay on one line: if (!value) { return; }
+# Includes keep their hand-made order: <windows.h> must come before other Windows headers.
+BasedOnStyle: Google
+IndentWidth: 4
+ColumnLimit: 100
+AccessModifierOffset: -4
+InsertBraces: true
+AllowShortFunctionsOnASingleLine: All
+AllowShortIfStatementsOnASingleLine: WithoutElse
+AllowShortLoopsOnASingleLine: true
+AllowShortBlocksOnASingleLine: Always
+AllowShortCaseLabelsOnASingleLine: true
+DerivePointerAlignment: false
+PointerAlignment: Left
+SortIncludes: Never
+IncludeBlocks: Preserve

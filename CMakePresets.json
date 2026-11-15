@@ -1,0 +1,82 @@
+{
+    "version": 6,
+    "cmakeMinimumRequired": { "major": 3, "minor": 25, "patch": 0 },
+    "configurePresets": [
+        {
+            "name": "default",
+            "displayName": "Visual Studio 2022, x64",
+            "generator": "Visual Studio 17 2022",
+            "architecture": "x64",
+            "binaryDir": "${sourceDir}/build",
+            "condition": { "type": "equals", "lhs": "${hostSystemName}", "rhs": "Windows" }
+        },
+        {
+            "name": "analyze",
+            "displayName": "MSVC static analysis (/analyze)",
+            "inherits": "default",
+            "binaryDir": "${sourceDir}/build/analyze",
+            "cacheVariables": { "ETS_SPOTIFY_ANALYZE": "ON" }
+        },
+        {
+            "name": "asan",
+            "displayName": "AddressSanitizer",
+            "inherits": "default",
+            "binaryDir": "${sourceDir}/build/asan",
+            "cacheVariables": { "ETS_SPOTIFY_ASAN": "ON" }
+        }
+    ],
+    "buildPresets": [
+        { "name": "release", "configurePreset": "default", "configuration": "Release" },
+        { "name": "debug", "configurePreset": "default", "configuration": "Debug" },
+        { "name": "analyze", "configurePreset": "analyze", "configuration": "Release" },
+        { "name": "asan", "configurePreset": "asan", "configuration": "Debug" }
+    ],
+    "testPresets": [
+        {
+            "name": "release",
+            "configurePreset": "default",
+            "configuration": "Release",
+            "output": { "outputOnFailure": true }
+        },
+        {
+            "name": "debug",
+            "configurePreset": "default",
+            "configuration": "Debug",
+            "output": { "outputOnFailure": true }
+        },
+        {
+            "name": "asan",
+            "configurePreset": "asan",
+            "configuration": "Debug",
+            "output": { "outputOnFailure": true }
+        }
+    ],
+    "workflowPresets": [
+        {
+            "name": "default",
+            "displayName": "Configure, build (Release) and test",
+            "steps": [
+                { "type": "configure", "name": "default" },
+                { "type": "build", "name": "release" },
+                { "type": "test", "name": "release" }
+            ]
+        },
+        {
+            "name": "analyze",
+            "displayName": "Build with the MSVC static analyzer",
+            "steps": [
+                { "type": "configure", "name": "analyze" },
+                { "type": "build", "name": "analyze" }
+            ]
+        },
+        {
+            "name": "asan",
+            "displayName": "Build and test with AddressSanitizer",
+            "steps": [
+                { "type": "configure", "name": "asan" },
+                { "type": "build", "name": "asan" },
+                { "type": "test", "name": "asan" }
+            ]
+        }
+    ]
+}

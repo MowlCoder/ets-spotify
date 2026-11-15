@@ -1,0 +1,74 @@
+name: build
+
+on:
+  push:
+    branches: ["**"]
+    tags: ["v*"]
+  pull_request:
+
+jobs:
+  format:
+    name: Code style
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # The same clang-format version the code is formatted with (see .clang-format).
+      - name: clang-format
+        run: |
+          pipx install clang-format==19.1.5
+          git ls-files '*.hpp' '*.cpp' | xargs clang-format --dry-run --Werror
+
+  build:
+    name: Build and test
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+      # Release build, unit tests and the offline harness (D3D11 falls back to WARP without a GPU).
+      - name: Configure, build and test
+        run: cmake --workflow --preset default
+      - name: Upload the plugin
+        uses: actions/upload-artifact@v4
+        with:
+          name: ets_spotify
+          path: build/Release/ets_spotify.dll
+
+  analyze:
+    name: MSVC static analysis
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build with /analyze
+        run: cmake --workflow --preset analyze
+
+  asan:
+    name: AddressSanitizer
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and test with AddressSanitizer
+        run: cmake --workflow --preset asan
+
+  # A tag like v0.5.0 publishes a GitHub release with the plugin attached.
+  release:
+    name: Release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [format, build, analyze]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: The tag matches the version in CMakeLists.txt
+        run: |
+          version=$(sed -nE 's/^project\(ets_spotify VERSION ([0-9.]+).*/\1/p' CMakeLists.txt)
+          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "Tag $GITHUB_REF_NAME does not match the project version $version in CMakeLists.txt"
+            exit 1
+          fi
+      - uses: actions/download-artifact@v4
+        with:
+          name: ets_spotify
+      - name: Create the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" ets_spotify.dll --title "ets-spotify $GITHUB_REF_NAME" --generate-notes
