@@ -104,42 +104,16 @@ Key names: `F1`…`F24`, letters and digits, `NUMPAD0`…`NUMPAD9`, `PERIOD`, `C
 
 ## Building from source
 
-Requires Visual Studio 2022 with the "Desktop development with C++" workload and CMake 3.25 or newer (Visual Studio ships one). No other dependencies: only Windows system libraries.
+Requires Visual Studio 2022 with the "Desktop development with C++" workload; it includes CMake. No other dependencies.
 
 ```powershell
-cmake --workflow --preset default          # configure, Release build, unit tests and the offline harness (no game needed)
+cmake --workflow --preset default          # build and run the tests (no game needed)
 cmake --install build --config Release     # copy the DLL into the game; close the game first
 ```
 
-`cmake --install` finds the game in your Steam libraries. For another folder, configure with `-DETS2_DIR=<game folder>` or install with `--prefix <game folder>`. To uninstall, delete `<game folder>\bin\win_x64\plugins\ets_spotify.dll`.
+`cmake --install` finds the game through Steam. If it is installed elsewhere, add `--prefix <game folder>`.
 
-Step by step: `cmake --preset default`, `cmake --build --preset release` (or `debug`), `ctest --preset release` (add `-V` to see the hook timing from the harness). Visual Studio and CLion pick up `CMakePresets.json` by themselves; VS Code does it through the CMake Tools extension (recommended in `.vscode/extensions.json`), which also configures IntelliSense.
-
-Checks: `cmake --workflow --preset analyze` builds with the MSVC static analyzer, `cmake --workflow --preset asan` builds and tests with AddressSanitizer. The code follows [cpp-best-practices](https://github.com/cpp-best-practices/cppbestpractices); the deliberate deviations are listed in [docs/architecture.md](docs/architecture.md#c-best-practices).
-
-Releases: the version lives in `project(... VERSION x.y.z)` in `CMakeLists.txt`. Pushing a matching tag (`git tag v0.5.0 && git push origin v0.5.0`) makes CI build, test and publish a GitHub release with the DLL attached. CI also checks the code style with clang-format 19.
-
-How it works, why it is built this way and how to extend it: [docs/architecture.md](docs/architecture.md). The original analysis of the task and the alternatives: [docs/research.md](docs/research.md).
-
-### Layout
-
-```
-src/
-  plugin.cpp    entry point: the game calls scs_telemetry_init here, the modules start
-  core/         log, ini, JSON, HTTPS, PKCE, threads — nothing game-specific
-  game/         SDK ABI, game state, current truck
-  d3d/          Direct3D 11 hooks
-  screen/       finding the navigation screen, replacing its texture, fitting
-  ui/           painting the picture, texts
-  spotify/      login, token, Web API
-  cabin/        auto-pause, speed-dependent volume
-  input/        hotkeys
-  diagnostics/  tools used to find the screen
-tests/
-  unit/         unit tests of the pure logic
-  harness.cpp   offline harness that plays the game
-cmake/          finding the game for cmake --install
-```
+How it works and how to extend it: [docs/architecture.md](docs/architecture.md). The original research: [docs/research.md](docs/research.md).
 
 ## License
 

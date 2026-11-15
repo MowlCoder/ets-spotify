@@ -179,7 +179,10 @@ Deliberate deviations, and why:
 ## Build
 
 - `CMakeLists.txt` with presets (`CMakePresets.json`): Visual Studio 2022 generator, x64, static CRT (the DLL needs no VC++ redistributable), C++20, no third-party dependencies.
-- Presets: `default` (Release build and tests), `analyze` (MSVC static analyzer), `asan` (AddressSanitizer, Debug build and tests).
+- Presets: `default` (Release build and tests), `analyze` (MSVC static analyzer), `asan` (AddressSanitizer, Debug build and tests). Each runs as a workflow: `cmake --workflow --preset <name>`.
+- Step by step: `cmake --preset default`, `cmake --build --preset release` (or `debug`), `ctest --preset release` (`-V` shows the hook timing from the harness).
+- IDEs: Visual Studio and CLion pick up `CMakePresets.json` by themselves; VS Code does it through the CMake Tools extension (recommended in `.vscode/extensions.json`), and `.vscode/c_cpp_properties.json` gives IntelliSense the same compiler and standard.
 - Targets: `ets_core` (static library of game-independent code), `ets_spotify` (the plugin), `unit_tests` and `probe_harness` (registered with CTest; `ETS_SPOTIFY_TESTS=OFF` skips them).
-- `cmake --install` copies the DLL into the game folder, which `cmake/ets2.cmake` finds in the Steam libraries (registry + `libraryfolders.vdf`). It refuses a folder without the game and a running game.
-- The version is `project(... VERSION)` and reaches the code as `ETS_SPOTIFY_VERSION`. CI (`.github/workflows/build.yml`) checks the style, builds and tests on every push, and on a `v*` tag that matches the version publishes a GitHub release with the DLL.
+- `cmake --install` copies the DLL into the game folder, which `cmake/ets2.cmake` finds in the Steam libraries (registry + `libraryfolders.vdf`); `-DETS2_DIR=<game folder>` at configure time or `--prefix <game folder>` at install time overrides it. It refuses a folder without the game and a running game.
+- The version is `project(... VERSION)` and reaches the code as `ETS_SPOTIFY_VERSION`. CI (`.github/workflows/build.yml`) checks the style with clang-format 19, builds, tests and runs `analyze` and `asan` on every push.
+- Releases: bump the version in `CMakeLists.txt`, then push a matching tag (`git tag v0.5.0 && git push origin v0.5.0`); CI builds, tests and publishes a GitHub release with the DLL attached.
