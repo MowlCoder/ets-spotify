@@ -11,7 +11,7 @@ jobs:
     name: Code style
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       # The same clang-format version the code is formatted with (see .clang-format).
       - name: clang-format
         run: |
@@ -22,12 +22,12 @@ jobs:
     name: Build and test
     runs-on: windows-2022
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       # Release build, unit tests and the offline harness (D3D11 falls back to WARP without a GPU).
       - name: Configure, build and test
         run: cmake --workflow --preset default
       - name: Upload the plugin
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ets_spotify
           path: build/Release/ets_spotify.dll
@@ -36,7 +36,7 @@ jobs:
     name: MSVC static analysis
     runs-on: windows-2022
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Build with /analyze
         run: cmake --workflow --preset analyze
 
@@ -44,7 +44,7 @@ jobs:
     name: AddressSanitizer
     runs-on: windows-2022
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Build and test with AddressSanitizer
         run: cmake --workflow --preset asan
 
@@ -57,7 +57,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: The tag matches the version in CMakeLists.txt
         run: |
           version=$(sed -nE 's/^project\(ets_spotify VERSION ([0-9.]+).*/\1/p' CMakeLists.txt)
@@ -65,7 +65,7 @@ jobs:
             echo "Tag $GITHUB_REF_NAME does not match the project version $version in CMakeLists.txt"
             exit 1
           fi
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: ets_spotify
       - name: Create the release
