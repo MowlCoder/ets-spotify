@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.25)
-project(ets_spotify VERSION 0.5.0 LANGUAGES CXX)
+project(ets_spotify VERSION 0.1.0 LANGUAGES CXX)
 
 # Everything is in CMakePresets.json:
 #   cmake --workflow --preset default          configure, build (Release) and run the tests

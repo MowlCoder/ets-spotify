@@ -185,4 +185,4 @@ Deliberate deviations, and why:
 - Targets: `ets_core` (static library of game-independent code), `ets_spotify` (the plugin), `unit_tests` and `probe_harness` (registered with CTest; `ETS_SPOTIFY_TESTS=OFF` skips them).
 - `cmake --install` copies the DLL into the game folder, which `cmake/ets2.cmake` finds in the Steam libraries (registry + `libraryfolders.vdf`); `-DETS2_DIR=<game folder>` at configure time or `--prefix <game folder>` at install time overrides it. It refuses a folder without the game and a running game.
 - The version is `project(... VERSION)` and reaches the code as `ETS_SPOTIFY_VERSION`. CI (`.github/workflows/build.yml`) checks the style with clang-format 19, builds, tests and runs `analyze` and `asan` on every push.
-- Releases: bump the version in `CMakeLists.txt`, then push a matching tag (`git tag v0.5.0 && git push origin v0.5.0`); CI builds, tests and publishes a GitHub release with the DLL attached.
+- Releases: bump the version in `CMakeLists.txt`, then push a matching tag (`git tag v0.1.0 && git push origin v0.1.0`); CI builds, tests and publishes a GitHub release with the DLL attached.
